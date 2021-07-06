@@ -20,11 +20,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         log.info(TAG + "registerWebSocketHandlers");
 
-        /** postman으로 테스트 할 땐 아래 문장 수행 */
         registry.addHandler(webChatHandler, "/web/chat").setAllowedOrigins("*");
 
-        /** 실제 Front와 통신에는 아래 문장 수행 */
-        //registry.addHandler(webChatHandler, "/web/chat").setAllowedOrigins("*").withSockJS();
 
     }
 }
