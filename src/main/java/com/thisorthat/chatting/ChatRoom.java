@@ -10,14 +10,16 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @Getter
 @Setter
 public class ChatRoom {
     private static final String TAG = ChatRoom.class.getSimpleName();
-    private List<WebSocketSession> participants = new ArrayList<>();
+    private Map<String, WebSocketSession> participants = new HashMap<>();
     private List<ChatMessage> chatMessages = new ArrayList<>();
     private static ChatRoom chatRoom = null;
 
@@ -32,10 +34,10 @@ public class ChatRoom {
     }
 
 
-    public void addParticipant(WebSocketSession session) {
+    public void addParticipant(String name, WebSocketSession session) {
         log.info(TAG + ".addParticipant()");
 
-        participants.add(session);
+        participants.put(name, session);
     }
 
     public void sendMessageToAll(ChatMessage chatMessage, ObjectMapper objectMapper) {
@@ -44,16 +46,34 @@ public class ChatRoom {
         log.info("Sending message to " + participants.size() + " members");
         log.info("From " + chatMessage.getName());
         log.info("content: " + chatMessage.getContent());
-        for(WebSocketSession session : participants){
-            log.info("To " + session);
+        for(String name : participants.keySet()){
+            log.info("To " + name);
             try {
                 TextMessage textMessage = new TextMessage(objectMapper.writeValueAsString(chatMessage));
-                session.sendMessage(textMessage);
+                participants.get(name).sendMessage(textMessage);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public boolean isDuplicateName(String name) {
+        if(participants.containsKey(name))
+            return true;
+        return false;
+    }
+
+    public void sendMessage(ChatMessage chatMessage, ObjectMapper objectMapper, WebSocketSession session) {
+        TextMessage textMessage = null;
+        try {
+            textMessage = new TextMessage(objectMapper.writeValueAsString(chatMessage));
+            session.sendMessage(textMessage);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
