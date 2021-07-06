@@ -25,9 +25,6 @@ public class WebChatHandler extends TextWebSocketHandler {
         super.afterConnectionEstablished(session);
 
         list.add(session);
-
-        ChatRoom chatRoom = ChatRoom.getInstance();
-        chatRoom.addParticipant(session);
     }
 
     @Override
@@ -38,12 +35,21 @@ public class WebChatHandler extends TextWebSocketHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         ChatMessage chatMessage = objectMapper.readValue(message.getPayload(), ChatMessage.class);
 
+        ChatRoom chatRoom = ChatRoom.getInstance();
+
         if (chatMessage.getMessageType() == MessageType.JOIN) {
-            chatMessage = new ChatMessage("System", MessageType.JOIN, "님이 입장했습니다.");
+            if(chatRoom.isDuplicateName(chatMessage.getName())){
+                chatMessage = new ChatMessage("System", MessageType.ERROR, "001");
+                chatRoom.sendMessage(chatMessage, objectMapper, session);
+            } else {
+                chatRoom.addParticipant(chatMessage.getName(), session);
+                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName() + "님이 입장했습니다.");
+                chatRoom.sendMessageToAll(chatMessage, objectMapper);
+            }
+        } else {
+            chatRoom.sendMessageToAll(chatMessage, objectMapper);
         }
-
-        ChatRoom.getInstance().sendMessageToAll(chatMessage, objectMapper);
-
+        return;
     }
 
     @Override
