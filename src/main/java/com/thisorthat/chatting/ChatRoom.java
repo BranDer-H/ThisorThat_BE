@@ -2,6 +2,7 @@ package com.thisorthat.chatting;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -40,7 +41,7 @@ public class ChatRoom {
         participants.put(name, session);
     }
 
-    public void sendMessageToAll(ChatMessage chatMessage, ObjectMapper objectMapper) {
+    public void sendMessageToAll(ChatMessage chatMessage) {
         log.info(TAG+".sendMessageToAll()");
 
         log.info("Sending message to " + participants.size() + " members");
@@ -49,7 +50,8 @@ public class ChatRoom {
         for(String name : participants.keySet()){
             log.info("To " + name);
             try {
-                TextMessage textMessage = new TextMessage(objectMapper.writeValueAsString(chatMessage));
+                Gson gson = new Gson();
+                TextMessage textMessage = new TextMessage(gson.toJson(chatMessage));
                 participants.get(name).sendMessage(textMessage);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -65,10 +67,11 @@ public class ChatRoom {
         return false;
     }
 
-    public void sendMessage(ChatMessage chatMessage, ObjectMapper objectMapper, WebSocketSession session) {
+    public void sendMessage(ChatMessage chatMessage, WebSocketSession session) {
         TextMessage textMessage = null;
         try {
-            textMessage = new TextMessage(objectMapper.writeValueAsString(chatMessage));
+            Gson gson = new Gson();
+            textMessage = new TextMessage(gson.toJson(chatMessage));
             session.sendMessage(textMessage);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
