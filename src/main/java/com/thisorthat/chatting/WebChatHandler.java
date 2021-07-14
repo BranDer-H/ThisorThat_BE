@@ -1,6 +1,7 @@
 package com.thisorthat.chatting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -32,22 +33,22 @@ public class WebChatHandler extends TextWebSocketHandler {
         log.info(TAG + ".handleTestMessage " + session + " " + message);
         super.handleTextMessage(session, message);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        ChatMessage chatMessage = objectMapper.readValue(message.getPayload(), ChatMessage.class);
+        Gson gson = new Gson();
+        ChatMessage chatMessage = gson.fromJson(message.getPayload(), ChatMessage.class);
 
         ChatRoom chatRoom = ChatRoom.getInstance();
 
         if (chatMessage.getMessageType() == MessageType.JOIN) {
             if(chatRoom.isDuplicateName(chatMessage.getName())){
-                chatMessage = new ChatMessage("System", MessageType.ERROR, "001");
-                chatRoom.sendMessage(chatMessage, objectMapper, session);
+                chatMessage = new ChatMessage("System", MessageType.ERROR, "001", System.currentTimeMillis());
+                chatRoom.sendMessage(chatMessage, session);
             } else {
                 chatRoom.addParticipant(chatMessage.getName(), session);
-                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName() + "님이 입장했습니다.");
-                chatRoom.sendMessageToAll(chatMessage, objectMapper);
+                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName() + "님이 입장했습니다.", chatMessage.getTimestamp());
+                chatRoom.sendMessageToAll(chatMessage);
             }
         } else {
-            chatRoom.sendMessageToAll(chatMessage, objectMapper);
+            chatRoom.sendMessageToAll(chatMessage);
         }
         return;
     }

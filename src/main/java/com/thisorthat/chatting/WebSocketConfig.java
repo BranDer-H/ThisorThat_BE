@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         log.info(TAG + "registerWebSocketHandlers");
 
-        registry.addHandler(webChatHandler, "/web/chat").setAllowedOrigins("*");
+        registry.addHandler(webChatHandler, "/chat").setAllowedOrigins("*");
 
 
     }
