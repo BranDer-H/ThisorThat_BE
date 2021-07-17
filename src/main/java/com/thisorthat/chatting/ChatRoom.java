@@ -81,13 +81,21 @@ public class ChatRoom {
     }
 
     public void removeUser(WebSocketSession session) {
-        log.info(TAG + " .removeUser()");
+        String userName = getParticipantNameBySession(session);
+        participants.remove(userName);
+    }
+
+    public String getParticipantNameBySession(WebSocketSession session) {
+        String userName = null;
         for(Map.Entry<String, WebSocketSession> entry : participants.entrySet()){
             if(entry.getValue().equals(session)){
-                log.info(TAG +  " User: " + entry.getKey() + " removed from the room");
-                participants.remove(entry.getKey());
-                break;
+                userName = entry.getKey();
             }
         }
+        return userName;
+    }
+
+    public String getParticipantsName() {
+        return participants.keySet().toString();
     }
 }
