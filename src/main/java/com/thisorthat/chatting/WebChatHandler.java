@@ -18,14 +18,12 @@ import static com.thisorthat.chatting.MessageType.*;
 @Log4j2
 public class WebChatHandler extends TextWebSocketHandler {
     private static final String TAG = WebChatHandler.class.getSimpleName();
-    private static List<WebSocketSession> list = new ArrayList<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info(TAG + ".afterConnectionEstablished "  + session + " client connected");
         super.afterConnectionEstablished(session);
 
-        list.add(session);
     }
 
     @Override
@@ -57,6 +55,6 @@ public class WebChatHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info(session + " 클라이언트 접속 해제. Status : " + status);
         super.afterConnectionClosed(session, status);
-        list.remove(session);
+        ChatRoom.getInstance().removeUser(session);
     }
 }
