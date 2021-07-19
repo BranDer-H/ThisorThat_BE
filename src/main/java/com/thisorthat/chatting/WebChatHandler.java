@@ -41,8 +41,11 @@ public class WebChatHandler extends TextWebSocketHandler {
                 chatMessage = new ChatMessage("System", MessageType.ERROR, "001", System.currentTimeMillis());
                 chatRoom.sendMessage(chatMessage, session);
             } else {
+                TextMessage textMessage = new TextMessage(gson.toJson(new ChatMessage("System", MessageType.PARTICIPANTS, chatRoom.getParticipantsName(), System.currentTimeMillis())));
+                session.sendMessage(textMessage);
+
                 chatRoom.addParticipant(chatMessage.getName(), session);
-                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName() + "님이 입장했습니다.", chatMessage.getTimestamp());
+                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName(), chatMessage.getTimestamp());
                 chatRoom.sendMessageToAll(chatMessage);
             }
         } else {
@@ -55,6 +58,10 @@ public class WebChatHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info(session + " 클라이언트 접속 해제. Status : " + status);
         super.afterConnectionClosed(session, status);
+        String userName = ChatRoom.getInstance().getParticipantNameBySession(session);
         ChatRoom.getInstance().removeUser(session);
+
+        ChatRoom.getInstance().sendMessageToAll(new ChatMessage("System", MessageType.LEAVE, userName, System.currentTimeMillis()));
+
     }
 }
