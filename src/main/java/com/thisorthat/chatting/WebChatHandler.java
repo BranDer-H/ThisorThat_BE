@@ -62,5 +62,6 @@ public class WebChatHandler extends TextWebSocketHandler {
         ChatRoom.getInstance().removeUser(session);
 
         ChatRoom.getInstance().sendMessageToAll(new ChatMessage("System", MessageType.LEAVE, userName, System.currentTimeMillis()));
+
     }
 }
