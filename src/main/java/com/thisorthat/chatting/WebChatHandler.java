@@ -38,14 +38,14 @@ public class WebChatHandler extends TextWebSocketHandler {
 
         if (chatMessage.getMessageType() == MessageType.JOIN) {
             if(chatRoom.isDuplicateName(chatMessage.getName())){
-                chatMessage = new ChatMessage("System", MessageType.ERROR, "001", System.currentTimeMillis());
+                chatMessage = new ChatMessage("System", MessageType.ERROR, "001", System.currentTimeMillis(), "");
                 chatRoom.sendMessage(chatMessage, session);
             } else {
-                TextMessage textMessage = new TextMessage(gson.toJson(new ChatMessage("System", MessageType.PARTICIPANTS, chatRoom.getParticipantsName(), System.currentTimeMillis())));
+                TextMessage textMessage = new TextMessage(gson.toJson(new ChatMessage("System", MessageType.PARTICIPANTS, chatRoom.getParticipantsName(), System.currentTimeMillis(), "")));
                 session.sendMessage(textMessage);
 
                 chatRoom.addParticipant(chatMessage.getName(), session);
-                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName(), chatMessage.getTimestamp());
+                chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName(), chatMessage.getTimestamp(), chatMessage.getColor());
                 chatRoom.sendMessageToAll(chatMessage);
             }
         } else {
@@ -61,6 +61,6 @@ public class WebChatHandler extends TextWebSocketHandler {
         String userName = ChatRoom.getInstance().getParticipantNameBySession(session);
         ChatRoom.getInstance().removeUser(session);
 
-        ChatRoom.getInstance().sendMessageToAll(new ChatMessage("System", MessageType.LEAVE, userName, System.currentTimeMillis()));
+        ChatRoom.getInstance().sendMessageToAll(new ChatMessage("System", MessageType.LEAVE, userName, System.currentTimeMillis(), ""));
     }
 }
