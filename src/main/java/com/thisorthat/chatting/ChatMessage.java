@@ -14,4 +14,5 @@ public class ChatMessage {
     private MessageType messageType;
     private String content;
     private long timestamp;
+    private String color;
 }
