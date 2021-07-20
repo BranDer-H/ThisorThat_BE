@@ -41,11 +41,13 @@ public class WebChatHandler extends TextWebSocketHandler {
                 chatMessage = new ChatMessage("System", MessageType.ERROR, "001", System.currentTimeMillis(), "");
                 chatRoom.sendMessage(chatMessage, session);
             } else {
+
                 TextMessage textMessage = new TextMessage(gson.toJson(new ChatMessage("System", MessageType.PARTICIPANTS, chatRoom.getParticipantsName(), System.currentTimeMillis(), "")));
                 session.sendMessage(textMessage);
 
                 chatRoom.addParticipant(chatMessage.getName(), session);
                 chatMessage = new ChatMessage("System", MessageType.JOIN, chatMessage.getName(), chatMessage.getTimestamp(), chatMessage.getColor());
+
                 chatRoom.sendMessageToAll(chatMessage);
             }
         } else {
